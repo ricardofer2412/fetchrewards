@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
+import axios from "axios";
 const currencies = [
   {
     value: "USD",
@@ -50,8 +50,33 @@ function Copyright(props) {
 const theme = createTheme();
 
 class NewUserForm extends React.Component {
-  handleChange = (event) => {};
+  state = {
+    occupations: [],
+    userState: [],
+    fullname: "",
+    userEmail: "",
+    userPassword: "",
+  };
+
+  async componentDidMount() {
+    const apiData = await axios.get(
+      "https://frontend-take-home.fetchrewards.com/form"
+    );
+    this.setState({
+      occupations: apiData.data.occupations,
+      userState: apiData.data.states,
+    });
+    console.log("info loaded", this.state.occupations);
+  }
+
+  handleChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+
   render() {
+    const { fullname, userEmail, userPassword, occupations, userState } =
+      this.state;
     return (
       <ThemeProvider theme={theme}>
         <Container
@@ -76,13 +101,16 @@ class NewUserForm extends React.Component {
             </Typography>
             <Box component="form" noValidate sx={{ mt: 1 }}>
               <TextField
+                InputProps={{ name: "fullname" }}
                 margin="normal"
                 required
                 fullWidth
                 id="name"
                 label="Full Name"
                 name="fullName"
+                value={fullname}
                 autoFocus
+                onChange={(e) => this.handleChange(e)}
               />
               <TextField
                 margin="normal"
@@ -93,6 +121,9 @@ class NewUserForm extends React.Component {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={userEmail}
+                InputProps={{ name: "userEmail" }}
+                onChange={(e) => this.handleChange(e)}
               />
               <TextField
                 margin="normal"
@@ -103,29 +134,34 @@ class NewUserForm extends React.Component {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={userPassword}
+                InputProps={{ userPassword }}
+                onChange={(e) => this.handleChange(e)}
               />
               <TextField
                 fullWidth
-                id="outlined-select-currency"
                 select
-                label="Select"
-                value=""
-                onChange={this.handleChange}
-                helperText="Please select your currency"
+                label="Occupation"
+                InputProps={{ name: "occupations" }}
+                value={occupations}
+                SelectProps={{
+                  MenuProps: {},
+                }}
+                onChange={(e) => this.handleChange(e)}
               >
-                {currencies.map((option) => (
+                {this.state.occupations.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
               </TextField>
+
               <TextField
                 fullWidth
-                id="outlined-select-currency"
                 select
                 label="Select"
                 value=""
-                onChange={this.handleChange}
+                onChange={(e) => this.handleChange(e)}
                 helperText="Please select your currency"
               >
                 {currencies.map((option) => (
